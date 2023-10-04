@@ -11,7 +11,7 @@ const firebaseConfig = {
     storageBucket: "trello-mobile-react-native.appspot.com",
     messagingSenderId: "82887044836",
     appId: "1:82887044836:android:b907eb903e362abca446f1",
-    databaseURL: "https://trello-mobile-react-native.europe-west2.firebasedatabase.app/"
+    databaseURL: "https://trello-mobile-react-native-default-rtdb.firebaseio.com/"
 };
 
 // Initialize Firebase

@@ -4,14 +4,32 @@ import { Button } from 'react-native-paper';
 import { blue, pink, white } from '../../components/colors';
 import { ListItem, Avatar, LinearGradient } from '@rneui/base';
 import ProjectCard from '../../components/cards/project';
-import projects from '../../../assets/datas.json';
+import projectsData from '../../../assets/datas.json';
+import { getAllProjects } from '../../api/projects';
+import NewProjectForm from '../../components/modal/projectForm';
 
 const ProjectList = ({ navigation }) => {
   const [selectedId, setSelectedId] = useState();
   const [projectData, setProjectData] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setIsModalVisible(true);
+  };
 
   useEffect(() => {
-    setProjectData(projects);
+    (async () => {
+      try {
+          const a = await getAllProjects()
+          if (a) {
+            setProjectData(a)
+          }
+      }
+      catch (err) {
+          Alert.alert(err)
+      }
+  })()
+    
   }, []); 
 
   const renderItem = ({item}) => {
@@ -32,7 +50,8 @@ const ProjectList = ({ navigation }) => {
         extraData={selectedId}
         style={styles.list}
       />
-      <Button icon="plus" mode="contained" onPress={()=>{}} style={styles.addBtn}>Ajouter</Button>
+      <Button icon="plus" mode="contained" onPress={() => toggleModal()} style={styles.addBtn}>Ajouter</Button>
+      <NewProjectForm isOpen={isModalVisible} onClose={() => setIsModalVisible(!isModalVisible)}/>
     </ScrollView>
   );
 };
