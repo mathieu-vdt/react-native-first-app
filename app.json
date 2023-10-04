@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "album-ean202",
+    "slug": "album-ean202",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "album-ean202"
+}
