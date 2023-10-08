@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity  } from 'react-native';
-import { Button } from 'react-native-paper';
-import { white, pink } from '../../components/colors';
+import { Button, IconButton } from 'react-native-paper';
+import { white, pink, blue } from '../../components/colors';
 import { Icon } from '@rneui/themed';
 import projectsData from '../../../assets/datas.json';
-import { IconButton, MD3Colors } from 'react-native-paper';
+import { deleteProject, editProjectTitle, editProjectDesc } from '../../api/projects';
+
+import { Divider,Card, Title} from 'react-native-paper';
 
 // import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const ProjectCard = ({ navigation, item }) => {
+const ProjectCard = ({ navigation, item, refreshProjects }) => {
     const [isPressed, setIsPressed] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -18,7 +20,7 @@ const ProjectCard = ({ navigation, item }) => {
 
 
     const handlePress = () => {
-        navigation.navigate('ProjectDetails', { project: item });
+        navigation.navigate('project_details', { project: item });
         setIsPressed(true);
     };
 
@@ -31,55 +33,79 @@ const ProjectCard = ({ navigation, item }) => {
     };
 
     // Fonction pour sauvegarder les modifications dans le fichier JSON
-    const saveChanges = async () => {
-        console.log('OOOOK')
+    const saveChangesTitle = async (item) => {
+        editProjectTitle(item.id, editedTitle)
+        refreshProjects()
+        setIsEditingTitle(!isEditingTitle)
     };
+    
+    const saveChangesDesc = async (item) => {
+        editProjectDesc(item.id, editedDesc)
+        refreshProjects()
+        setIsEditingDesc(!isEditingDesc)
+    };
+
     return (
-        <TouchableOpacity
-        onPress={handlePress}
-        style={styles.item}
-      >
-        <View style={styles.container}>
-          {isEditingTitle ? (
-            <TextInput
-                value={editedTitle}
-                onChangeText={handleTitleChange}
-                onBlur={saveChanges}
-            />
-            ) : (
-                <Text style={styles.text}>{item.title}</Text>
-            )}
-            <IconButton
-                icon="pencil"
-                mode="contained"
-                iconColor={white}
-                style={styles.editBtn}
-                onPress={() => setIsEditingTitle(!isEditingTitle)}
-            />
-          {/* <MaterialCommunityIcons name="chevron-right" size={24} color={white} /> */}
-        </View>
-        
-        <View style={styles.container2}>
-            {isEditingDesc ? (
-                <TextInput
-                    value={editedDesc}
-                    multiline={true}
-                    numberOfLines={4}
-                    onChangeText={handleDescChange}
-                    onBlur={saveChanges}
-                />
-            ) : (
-                <Text style={styles.text2} numberOfLines={2} ellipsizeMode="tail">{item.description}</Text>
-            )}
-            <IconButton
-                icon="pencil"
-                mode="contained"
-                iconColor={white}
-                style={styles.editBtn}
-                onPress={() => setIsEditingDesc(!isEditingDesc)}
-            />
-        </View>
-      </TouchableOpacity>
+        <Card style={styles.Card}>
+            <Card.Content>
+                <View style={styles.container2}>
+                    {isEditingTitle ? (
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                value={editedTitle}
+                                onChangeText={handleTitleChange}
+                                style={styles.textInput}
+                            />
+
+                            <IconButton icon="check" mode="contained" iconColor={blue} onPress={()=>{
+                                saveChangesTitle(item)
+                            }} style={styles.editBtn}></IconButton>
+                        </View>
+                        
+                        ) : (
+                            <TouchableOpacity
+                                onPress={()=>setIsEditingTitle(!isEditingTitle)}
+                                style={styles.descBtn}
+                            >
+                                <Text style={styles.text}>{item.title}</Text>
+                            </TouchableOpacity>
+                            
+                        )}
+                    </View>
+                <View style={styles.container2}>
+                        {isEditingDesc ? (
+                            
+                                <View style={styles.inputContainer}>
+                                    <TextInput
+                                        value={editedDesc}
+                                        multiline={true}
+                                        numberOfLines={4}
+                                        onChangeText={handleDescChange}
+                                        style={styles.textInput2}
+                                    />
+
+                                    <IconButton icon="check" mode="contained" iconColor={blue} onPress={()=>{saveChangesDesc(item)}} style={styles.editBtn}></IconButton>
+                                </View>
+                            
+                        ) : (
+                            <TouchableOpacity
+                                onPress={()=>setIsEditingDesc(!isEditingDesc)}
+                                style={styles.descBtn}
+                            >
+                                <Text style={styles.text2} numberOfLines={1}>{item.description}</Text>
+                            </TouchableOpacity>
+                            
+                        )}
+                    </View>
+            </Card.Content>
+            <Card.Actions>
+                <Button onPress={()=>{
+                    deleteProject(item.id)
+                    refreshProjects()
+                }}>Supprimer</Button>
+                <Button onPress={handlePress}>Voir</Button>
+            </Card.Actions>
+        </Card>
     );
 }
 
@@ -93,17 +119,24 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-
-        padding: 20
+    },
+    container3: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    Card:{
+        backgroundColor: white,
+        margin: 10
     },
     text: {
         fontSize: 22,
-        color: white,
+        color: blue,
         opacity: 1,
     },
     text2: {
         fontSize: 18,
-        color: white,
+        color: blue,
         opacity: 0.7,
     },
     item: {
@@ -117,9 +150,42 @@ const styles = StyleSheet.create({
     },
     editBtn: {
         backgroundColor: 'transparent',
-        color: white,
+        color: blue,
         fontSize: 24,
         textAlign:"center"
+    },
+    textInput: {
+        borderWidth: 1,
+        fontSize: 22,
+        color: blue,
+        paddingHorizontal: 20,
+        paddingVertical: 5,
+        borderRadius: 12,
+        borderColor: blue
+    },
+
+    textInput2: {
+        borderWidth: 1,
+        fontSize: 18,
+        color: blue,
+        paddingHorizontal: 20,
+        paddingVertical: 5,
+        borderRadius: 12,
+        borderColor: blue
+    },
+    textBtn: {
+        color: blue,
+        backgroundColor: 'transparent'
+    },
+    descBtn:{
+        overflow: 'hidden', 
+        whiteSpace: 'nowrap',
+        margin: 20
+    },
+    inputContainer:{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     }
 });
 export default ProjectCard;

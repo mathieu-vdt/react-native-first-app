@@ -4,30 +4,28 @@ import { Button } from 'react-native-paper';
 import { styles as globalStyles } from '../../styles'
 import Modal from 'react-native-modal';
 import { white, pink, blue } from '../colors';
-import { addProject } from '../../api/projects';
+import { addTask } from '../../api/tasks';
 import { PhotoContext } from '../../context/photoContext';
 
-const NewProjectForm = ({ isVisible, onClose, refreshProjects}) => {
-    const [nom, setNom] = useState('');
+const TaskForm = ({ isVisible, onClose, columnId, refreshTasks}) => {
     const [description, setDescription] = useState('');
     const { user, resfresh, setRefresh } = useContext(PhotoContext);
 
-    const handleAddProject = async () => {
-        if (!nom) {
-          Alert.alert('Veuillez entrer un nom de projet.');
+    const handleAddTask = async () => {
+        if (!description) {
+          Alert.alert('Veuillez entrer un nom de tache.');
           return;
         }
     
         try {
-          await addProject(user.uid, nom, description);
-          Alert.alert('Projet ajouté avec succès.');
-          refreshProjects()
-          setNom('');
+          await addTask(columnId, description);
+          Alert.alert('Tache ajouté avec succès.');
+          refreshTasks()
           setDescription('');
           onClose();
         } catch (error) {
-          console.error('Erreur lors de l\'ajout du projet :', error);
-          Alert.alert('Une erreur s\'est produite lors de l\'ajout du projet.');
+          console.error('Erreur lors de l\'ajout de la tache :', error);
+          Alert.alert('Une erreur s\'est produite lors de l\'ajout de la tache.');
         }
     };
 
@@ -41,24 +39,16 @@ const NewProjectForm = ({ isVisible, onClose, refreshProjects}) => {
         >
             <View style={styles.containerMain}>
                 <View style={styles.container}>
-                    <Text style={styles.label}>Nom du projet :</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={nom}
-                        onChangeText={text => setNom(text)}
-                        placeholder="Entrez le nom du projet"
-                    />
-
-                    <Text style={styles.label}>Description :</Text>
+                    <Text style={styles.label}>Nom de la tâche :</Text>
                     <TextInput
                         style={styles.input}
                         value={description}
                         onChangeText={text => setDescription(text)}
-                        placeholder="Entrez la description du projet"
+                        placeholder="Entrez le nom de la tache"
                     />
                 </View>
                 <View style={styles.ContainerButton}>
-                    <Button title="Ajouter le projet" mode="contained" onPress={handleAddProject} style={styles.modalBtnCreate}>Créer</Button>
+                    <Button title="Ajouter la tache" mode="contained" onPress={handleAddTask} style={styles.modalBtnCreate}>Créer</Button>
                     <Button mode="contained" onPress={onClose} style={styles.modalBtnClose}>Fermer</Button>
                 </View>
             </View>
@@ -114,4 +104,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default NewProjectForm;
+export default TaskForm;

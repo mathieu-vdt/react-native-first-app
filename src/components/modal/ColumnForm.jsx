@@ -1,33 +1,30 @@
 import React, { useContext, useState } from 'react';
 import { View, StyleSheet, TextInput, TouchableOpacity, Text, Keyboard, Alert } from 'react-native';
 import { Button } from 'react-native-paper';
-import { styles as globalStyles } from '../../styles'
 import Modal from 'react-native-modal';
 import { white, pink, blue } from '../colors';
-import { addProject } from '../../api/projects';
+import { addColumn } from '../../api/columns';
 import { PhotoContext } from '../../context/photoContext';
 
-const NewProjectForm = ({ isVisible, onClose, refreshProjects}) => {
-    const [nom, setNom] = useState('');
-    const [description, setDescription] = useState('');
+const ColumnForm = ({ isVisible, onClose, projectId, refreshColumns}) => {
+    const [title, setTitle] = useState('');
     const { user, resfresh, setRefresh } = useContext(PhotoContext);
 
-    const handleAddProject = async () => {
-        if (!nom) {
-          Alert.alert('Veuillez entrer un nom de projet.');
+    const handleAddColumn = async () => {
+        if (!title) {
+          Alert.alert('Veuillez entrer un nom de colonne.');
           return;
         }
     
         try {
-          await addProject(user.uid, nom, description);
+          await addColumn(projectId, title);
           Alert.alert('Projet ajouté avec succès.');
-          refreshProjects()
-          setNom('');
-          setDescription('');
+          refreshColumns()
+          setTitle('');
           onClose();
         } catch (error) {
-          console.error('Erreur lors de l\'ajout du projet :', error);
-          Alert.alert('Une erreur s\'est produite lors de l\'ajout du projet.');
+          console.error('Erreur lors de l\'ajout de la colonne :', error);
+          Alert.alert('Une erreur s\'est produite lors de l\'ajout de la colonne.');
         }
     };
 
@@ -44,21 +41,13 @@ const NewProjectForm = ({ isVisible, onClose, refreshProjects}) => {
                     <Text style={styles.label}>Nom du projet :</Text>
                     <TextInput
                         style={styles.input}
-                        value={nom}
-                        onChangeText={text => setNom(text)}
-                        placeholder="Entrez le nom du projet"
-                    />
-
-                    <Text style={styles.label}>Description :</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={description}
-                        onChangeText={text => setDescription(text)}
-                        placeholder="Entrez la description du projet"
+                        value={title}
+                        onChangeText={text => setTitle(text)}
+                        placeholder="Entrez le nom de la colonne"
                     />
                 </View>
                 <View style={styles.ContainerButton}>
-                    <Button title="Ajouter le projet" mode="contained" onPress={handleAddProject} style={styles.modalBtnCreate}>Créer</Button>
+                    <Button title="Ajouter la colonne" mode="contained" onPress={handleAddColumn} style={styles.modalBtnCreate}>Créer</Button>
                     <Button mode="contained" onPress={onClose} style={styles.modalBtnClose}>Fermer</Button>
                 </View>
             </View>
@@ -114,4 +103,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default NewProjectForm;
+export default ColumnForm;
