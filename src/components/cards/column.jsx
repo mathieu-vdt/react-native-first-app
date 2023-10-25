@@ -78,6 +78,10 @@ const ColumnCard = ({ navigation, item, refreshColumns }) => {
                         ): null}
                     </View>
                     <Text style={styles.textNoElement}>Aucune tache</Text>
+                    <View style={{ flex: 1 }}>
+                        <Button icon="plus" mode="contained" onPress={toggleModal} style={styles.addBtn}>Ajouter</Button>
+                        <TaskForm isVisible={isModalVisible} onClose={toggleModal} columnId={item.id} refreshTasks={refreshTasks}/>
+                    </View>
                 </View>
             );
         }else{
